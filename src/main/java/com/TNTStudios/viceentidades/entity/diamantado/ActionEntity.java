@@ -1,5 +1,5 @@
 // src/main/java/com/TNTStudios/viceentidades/entity/action/ActionEntity.java
-package com.TNTStudios.viceentidades.entity.action;
+package com.TNTStudios.viceentidades.entity.diamantado;
 
 import com.TNTStudios.viceentidades.entity.common.ApproachTargetGoal;
 import net.minecraft.entity.EntityType;

@@ -2,7 +2,7 @@
 package com.TNTStudios.viceentidades.client.renderer.action;
 
 import com.TNTStudios.viceentidades.client.model.action.ActionModel;
-import com.TNTStudios.viceentidades.entity.action.ActionEntity;
+import com.TNTStudios.viceentidades.entity.diamantado.ActionEntity;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 

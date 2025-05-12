@@ -1,7 +1,7 @@
 // src/client/java/com/TNTStudios/viceentidades/client/model/action/ActionModel.java
 package com.TNTStudios.viceentidades.client.model.action;
 
-import com.TNTStudios.viceentidades.entity.action.ActionEntity;
+import com.TNTStudios.viceentidades.entity.diamantado.ActionEntity;
 import software.bernie.geckolib.model.GeoModel;
 import net.minecraft.util.Identifier;
 

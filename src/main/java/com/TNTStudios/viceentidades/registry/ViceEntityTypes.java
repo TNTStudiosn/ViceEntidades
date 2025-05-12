@@ -1,8 +1,8 @@
 package com.TNTStudios.viceentidades.registry;
 
+import com.TNTStudios.viceentidades.entity.diamantado.DiamantadoEntity;
 import com.TNTStudios.viceentidades.entity.diamita.DiamitaEntity;
-import com.TNTStudios.viceentidades.entity.action.ActionEntity;
-import net.minecraft.entity.attribute.EntityAttributes;
+import com.TNTStudios.viceentidades.entity.diamantado.ActionEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
@@ -25,6 +25,15 @@ public class ViceEntityTypes {
                     .setDimensions(1.7F, 2.0F)
                     .build("action")
     );
+
+    public static final EntityType<DiamantadoEntity> DIAMANTADO = Registry.register(
+            Registries.ENTITY_TYPE,
+            new Identifier("viceentidades", "diamantado"),
+            EntityType.Builder.create(DiamantadoEntity::new, SpawnGroup.MONSTER)
+                    .setDimensions(3.5F, 3.5F)  // ajusta según tu modelo
+                    .build("diamantado")
+    );
+
 
     public static void register() {
         // Método vacío si no necesitas lógica adicional
