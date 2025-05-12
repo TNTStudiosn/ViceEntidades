@@ -26,6 +26,7 @@ import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import com.TNTStudios.viceentidades.registry.ViceEntityTypes;
 import java.util.EnumSet;
+import java.util.List;
 
 public class DiamantadoEntity extends PathAwareEntity implements GeoEntity {
 
@@ -38,7 +39,7 @@ public class DiamantadoEntity extends PathAwareEntity implements GeoEntity {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private final ServerBossBar bossBar = new ServerBossBar(
-            Text.of("Diamantado"),
+            Text.of("Diamanto"),
             ServerBossBar.Color.BLUE,
             ServerBossBar.Style.PROGRESS
     );
@@ -47,16 +48,11 @@ public class DiamantadoEntity extends PathAwareEntity implements GeoEntity {
 
     public DiamantadoEntity(EntityType<? extends PathAwareEntity> type, World world) {
         super(type, world);
-        if (world.getServer() != null) {
-            for (ServerPlayerEntity p : world.getServer().getPlayerManager().getPlayerList()) {
-                bossBar.addPlayer(p);
-            }
-        }
     }
 
     public static DefaultAttributeContainer.Builder createAttributes() {
         return PathAwareEntity.createMobAttributes()
-                .add(EntityAttributes.GENERIC_MAX_HEALTH, 600.0)
+                .add(EntityAttributes.GENERIC_MAX_HEALTH, 1200.0)
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.35)
                 .add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK, 20.0);
     }
@@ -125,7 +121,7 @@ public class DiamantadoEntity extends PathAwareEntity implements GeoEntity {
             serverPlayer.damage(this.getDamageSources().mobAttack(this), 12.0F);
             Vec3d direction = serverPlayer.getPos().subtract(this.getPos()).normalize();
             serverPlayer.takeKnockback(10.0F, direction.x * 4, direction.z * 4);
-            serverPlayer.sendMessage(Text.of("§c¡Diamantado desata un terremoto brutal!"), true);
+            serverPlayer.sendMessage(Text.of("§c¡Diamanto desata un terremoto brutal!"), true);
         }
 
         currentAnim = "attack";
@@ -175,13 +171,42 @@ public class DiamantadoEntity extends PathAwareEntity implements GeoEntity {
         super.tick();
         bossBar.setPercent(this.getHealth() / this.getMaxHealth());
 
+        if (this.isAlive() && this.getWorld() instanceof ServerWorld serverWorld) {
+            for (ServerPlayerEntity player : serverWorld.getPlayers()) {
+                double distanceSq = player.squaredDistanceTo(this);
+
+                if (distanceSq < 80 * 80 && player.isAlive()) {
+                    if (!bossBar.getPlayers().contains(player)) {
+                        bossBar.addPlayer(player);
+                    }
+                } else {
+                    if (bossBar.getPlayers().contains(player)) {
+                        bossBar.removePlayer(player);
+                    }
+                }
+            }
+        }
+
+
         long worldTime = this.getWorld().getTime();
 
         // ⏱ Solo si está atacando (tras comando) invoca secuaces cada 20 segundos
         if (phase == BossPhase.CHASING && worldTime % 400 == 0 && !this.isDead() && !this.isRemoved()) {
             if (this.getWorld() instanceof ServerWorld serverWorld) {
-                // 🧨 Spawnea 4 Diamitas
-                for (int i = 0; i < 5; i++) {
+                // Contar entidades activas de cada tipo
+                long diamitasActivas = serverWorld.getEntitiesByType(
+                        ViceEntityTypes.DIAMITA,
+                        e -> e.isAlive()
+                ).size();
+
+                long actionsActivas = serverWorld.getEntitiesByType(
+                        ViceEntityTypes.ACTION,
+                        e -> e.isAlive()
+                ).size();
+
+                // 🧨 Spawnea Diamitas si no se excede el límite
+                int diamitasParaSpawnear = Math.max(0, 15 - (int) diamitasActivas);
+                for (int i = 0; i < Math.min(5, diamitasParaSpawnear); i++) {
                     DiamitaEntity minion = new DiamitaEntity(ViceEntityTypes.DIAMITA, serverWorld);
                     minion.refreshPositionAndAngles(
                             this.getX() + (random.nextDouble() - 0.5) * 8,
@@ -193,8 +218,9 @@ public class DiamantadoEntity extends PathAwareEntity implements GeoEntity {
                     serverWorld.spawnEntity(minion);
                 }
 
-                // 💥 Spawnea 2 Actions
-                for (int i = 0; i < 3; i++) {
+                // 💥 Spawnea Actions si no se excede el límite
+                int actionsParaSpawnear = Math.max(0, 15 - (int) actionsActivas);
+                for (int i = 0; i < Math.min(3, actionsParaSpawnear); i++) {
                     ActionEntity brute = new ActionEntity(ViceEntityTypes.ACTION, serverWorld);
                     brute.refreshPositionAndAngles(
                             this.getX() + (random.nextDouble() - 0.5) * 10,
@@ -208,10 +234,11 @@ public class DiamantadoEntity extends PathAwareEntity implements GeoEntity {
 
                 // 🗯️ Mensaje en actionbar
                 for (ServerPlayerEntity player : serverWorld.getPlayers()) {
-                    player.sendMessage(Text.of("§6¡Diamantado invoca a sus secuaces!"), true);
+                    player.sendMessage(Text.of("§6¡Diamanto invoca a sus secuaces!"), true);
                 }
             }
         }
+
 
         if (phase == BossPhase.CHASING) {
             Entity targetEntity = this.getTarget();
@@ -224,16 +251,19 @@ public class DiamantadoEntity extends PathAwareEntity implements GeoEntity {
                     this.lastAttackTime = worldTime;
 
                     // Buscar siguiente jugador
-                    PlayerEntity nearest = this.getWorld().getPlayers().stream()
-                            .filter(PlayerEntity::isAlive)
-                            .min((a, b) -> Double.compare(this.squaredDistanceTo(a), this.squaredDistanceTo(b)))
-                            .orElse(null);
-                    if (nearest != null) {
-                        this.setTarget(nearest);
-                    } else {
-                        phase = BossPhase.IDLE;
-                        this.setTarget(null);
-                        this.getNavigation().stop();
+                    if (worldTime % 40 == 0) { // Solo cada 2 segundos
+                        PlayerEntity nearest = this.getWorld().getPlayers().stream()
+                                .filter(PlayerEntity::isAlive)
+                                .min((a, b) -> Double.compare(this.squaredDistanceTo(a), this.squaredDistanceTo(b)))
+                                .orElse(null);
+
+                        if (nearest != null) {
+                            this.setTarget(nearest);
+                        } else {
+                            this.phase = BossPhase.IDLE;
+                            this.setTarget(null);
+                            this.getNavigation().stop();
+                        }
                     }
                 }
             }
@@ -243,6 +273,11 @@ public class DiamantadoEntity extends PathAwareEntity implements GeoEntity {
     @Override
     public void onDeath(DamageSource source) {
         super.onDeath(source);
-        bossBar.getPlayers().forEach(bossBar::removePlayer);
+
+        // Copia segura para evitar ConcurrentModificationException
+        for (ServerPlayerEntity player : List.copyOf(bossBar.getPlayers())) {
+            bossBar.removePlayer(player);
+        }
     }
+
 }

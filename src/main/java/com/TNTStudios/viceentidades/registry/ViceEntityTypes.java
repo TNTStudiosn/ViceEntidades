@@ -30,7 +30,7 @@ public class ViceEntityTypes {
             Registries.ENTITY_TYPE,
             new Identifier("viceentidades", "diamantado"),
             EntityType.Builder.create(DiamantadoEntity::new, SpawnGroup.MONSTER)
-                    .setDimensions(3.5F, 3.5F)  // ajusta según tu modelo
+                    .setDimensions(2.5F, 3.5F)  // ajusta según tu modelo
                     .build("diamantado")
     );
 
