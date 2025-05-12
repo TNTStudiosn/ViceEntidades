@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "viceentidades",
+  "version": "${version}",
+  "name": "ViceEntidades",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/viceentidades/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.TNTStudios.viceentidades.client.ViceentidadesClient"
+    ],
+    "main": [
+      "com.TNTStudios.viceentidades.Viceentidades"
+    ]
+  },
+  "mixins": [
+    "viceentidades.mixins.json",
+    {
+      "config": "viceentidades.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
