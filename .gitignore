@@ -1,6 +1,9 @@
-# Project exclude paths
+# Ignorar carpetas completas
 /.gradle/
 /build/
-/src/main/resources/
+/run/
+/server/
+/clientre/
 /src/main/resources/assets/viceentidades/animations/
 /src/main/resources/assets/viceentidades/geo/
+/src/main/resources/
