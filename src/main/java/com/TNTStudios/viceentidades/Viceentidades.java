@@ -1,6 +1,7 @@
 package com.TNTStudios.viceentidades;
 
 import com.TNTStudios.viceentidades.command.AtacarCommand;
+import com.TNTStudios.viceentidades.entity.diamantado.DiamantadoEntity;
 import com.TNTStudios.viceentidades.entity.diamita.DiamitaEntity;
 import com.TNTStudios.viceentidades.registry.ViceEntityTypes;
 import com.TNTStudios.viceentidades.registry.ViceItems;
@@ -16,7 +17,7 @@ public class Viceentidades implements ModInitializer {
         ViceEntityTypes.register();
         FabricDefaultAttributeRegistry.register(ViceEntityTypes.DIAMITA, DiamitaEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(ViceEntityTypes.ACTION, ActionEntity.createAttributes());
-
+        FabricDefaultAttributeRegistry.register(ViceEntityTypes.DIAMANTADO, DiamantadoEntity.createAttributes()); // ← necesario
         ViceItems.register();
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {

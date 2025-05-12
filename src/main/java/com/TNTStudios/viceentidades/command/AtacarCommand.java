@@ -14,13 +14,14 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 public class AtacarCommand {
 
+
+
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(literal("atacar")
                 .requires(src -> src.hasPermissionLevel(4))
                 .executes(ctx -> {
                     ServerCommandSource src = ctx.getSource();
 
-                    // Construir caja basada en el borde del mundo
                     WorldBorder border = src.getWorld().getWorldBorder();
                     double size = border.getSize();
                     double radius = size / 2.0;
@@ -32,17 +33,18 @@ public class AtacarCommand {
                             centerX + radius, src.getWorld().getTopY(), centerZ + radius
                     );
 
-                    // Buscar todos los DiamantadoEntity
+                    // Buscar todos los DiamantadoEntity dentro del mundo
                     List<DiamantadoEntity> bosses = src.getWorld().getEntitiesByClass(
                             DiamantadoEntity.class,
                             worldBox,
                             entity -> true
                     );
 
-                    // Asignar a cada uno el jugador más cercano
+                    // A cada boss le asignamos el jugador más cercano en su mundo
                     for (DiamantadoEntity boss : bosses) {
-                        src.getServer().getPlayerManager().getPlayerList().stream()
-                                .filter(ServerPlayerEntity::isAlive)
+                        boss.getWorld().getPlayers().stream()
+                                .filter(p -> p instanceof ServerPlayerEntity sp && sp.isAlive())
+                                .map(p -> (ServerPlayerEntity) p)
                                 .min((a, b) -> Double.compare(a.squaredDistanceTo(boss), b.squaredDistanceTo(boss)))
                                 .ifPresent(boss::startAttack);
                     }
