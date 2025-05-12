@@ -23,9 +23,19 @@ loom {
 
 
 repositories {
+    maven { url = "https://maven.txni.dev/releases" }
     maven {
         url "https://cursemaven.com"
     }
+    maven {
+        name = 'GeckoLib'
+        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content {
+            includeGroupByRegex("software\\.bernie.*")
+            includeGroup("com.eliotlash.mclib")
+        }
+    }
+    mavenCentral()
 }
 
 dependencies {
@@ -39,6 +49,10 @@ dependencies {
     //librerias addon
     modImplementation "curse.maven:architectury-api-419699:5137936"
     modImplementation "curse.maven:octo-lib-916747:6274626"
+    implementation "org.mariuszgromada.math:MathParser.org-mXparser:5.2.1"
+    implementation "org.yaml:snakeyaml:2.0"
+    implementation("com.eliotlash.mclib:mclib:20")
+
 
     //perseption para movimiento de camara
     modImplementation "curse.maven:perception-1112793:6451452"
@@ -50,7 +64,9 @@ dependencies {
     modImplementation "curse.maven:geckolib-388172:6333466"
 
     //mensajes mmlones
-    modImplementation "curse.maven:immersive-messages-api-1109713:6480771"
+    modImplementation("toni.immersivemessages:fabric-1.20.1:1.0.18") {
+        transitive = false
+    }
 
 
 }
